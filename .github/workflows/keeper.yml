@@ -1,0 +1,26 @@
+name: keeper
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # cada 5 min (el mínimo de GitHub)
+  workflow_dispatch: {}     # botón para correrlo a mano
+
+concurrency:
+  group: keeper
+  cancel-in-progress: false
+
+jobs:
+  drain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install ethers
+        run: npm install ethers
+      - name: Run keeper
+        env:
+          KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
+          BASE_RPC: https://mainnet.base.org
+        run: node scripts/keeper.mjs
