@@ -14,7 +14,11 @@ const MAX_COUNT = 27;
 const WORK_THRESHOLD = 300_000n; // si estimate < 300K, colas vacías
 const GAS_CAP = 12_000_000n;
 
-const ABI = ["function processPendingQueue(uint256)"];
+const ABI = [
+  "function processPendingQueue(uint256)",
+  "function pendingQueueLength() view returns (uint256, uint256)",
+  "function pendingDerrameQueueLength() view returns (uint256)"
+];
 
 // ─── Cargar PK ─────────────────────────────────────────────────────
 let KEEPER_PK = process.env.KEEPER_PRIVATE_KEY || "";
@@ -38,6 +42,14 @@ const c = new ethers.Contract(PROXY, ABI, wallet);
 
 try {
   const data = c.interface.encodeFunctionData("processPendingQueue", [MAX_COUNT]);
+
+  // 0) Verificar si hay trabajo (evita gas de estimate con colas vacías)
+  const [upg, rei] = await c.pendingQueueLength();
+  const der = await c.pendingDerrameQueueLength();
+  if (upg === 0n && rei === 0n && der === 0n) {
+    console.log(`[keeper] colas vacías (upg=${upg} rei=${rei} der=${der})`);
+    process.exit(0);
+  }
 
   // 1) Detectar trabajo sin mandar tx
   const est = await provider.estimateGas({ to: PROXY, data, from: wallet.address });
