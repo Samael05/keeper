@@ -23,4 +23,4 @@ jobs:
         env:
           KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
           BASE_RPC: https://mainnet.base.org
-        run: node scripts/keeper.mjs
+        run: node .github/workflows/keeper.mjs
