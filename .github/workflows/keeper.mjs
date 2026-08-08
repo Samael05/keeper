@@ -46,8 +46,11 @@ try {
   // 0) Verificar si hay trabajo (evita gas de estimate con colas vacías)
   const [upg, rei] = await c.pendingQueueLength();
   const der = await c.pendingDerrameQueueLength();
-  if (upg === 0n && rei === 0n && der === 0n) {
-    console.log(`[keeper] colas vacías (upg=${upg} rei=${rei} der=${der})`);
+  // PLACE_ROOT items no tienen getter público — leer storage directo
+  const pLen = await provider.getStorage(PROXY, 47); // _pending.length = slot 47
+  const pendingLen = BigInt(pLen);
+  if (upg === 0n && rei === 0n && der === 0n && pendingLen === 0n) {
+    console.log(`[keeper] colas vacías (upg=${upg} rei=${rei} der=${der} pending=${pendingLen})`);
     process.exit(0);
   }
 
