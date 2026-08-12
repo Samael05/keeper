@@ -9,7 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ─── Config ────────────────────────────────────────────────────────
 const RPC = process.env.BASE_RPC || "https://mainnet.base.org";
-const PROXY = "0x685E3757a65a49a88E192E7F0B32984eE01808e6";
+const PROXY = "0xfA943bb3e78202fdE0Ee062AeF7cdCB0F3813051";
 const MAX_COUNT = 27;
 const WORK_THRESHOLD = 300_000n; // si estimate < 300K, colas vacías
 const GAS_CAP = 12_000_000n;
