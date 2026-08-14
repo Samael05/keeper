@@ -9,10 +9,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ─── Config ────────────────────────────────────────────────────────
 const RPC = process.env.BASE_RPC || "https://mainnet.base.org";
-const PROXY = "0xfA943bb3e78202fdE0Ee062AeF7cdCB0F3813051";
+const PROXY = "0x8af722f18063cAB9Dc94c4E6d23f201b3E5CcAF6";
 const MAX_COUNT = 27;
 const WORK_THRESHOLD = 300_000n; // si estimate < 300K, colas vacías
-const GAS_CAP = 12_000_000n;
+const GAS_CAP = 15_000_000n;
 
 const ABI = [
   "function processPendingQueue(uint256)",
