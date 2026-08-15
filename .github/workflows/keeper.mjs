@@ -11,14 +11,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const RPC = process.env.BASE_RPC || "https://mainnet.base.org";
 const PROXY = "0x8af722f18063cAB9Dc94c4E6d23f201b3E5CcAF6";
 const MAX_COUNT = 27;
-const WORK_THRESHOLD = 300_000n; // si estimate < 300K, colas vacías
-const GAS_CAP = 15_000_000n;
+const WORK_THRESHOLD = 100_000n; // procesa incluso colas de 1-2 items (PLACE_ROOT descartado ~111K)
+const GAS_CAP = 12_000_000n;
 
-const ABI = [
-  "function processPendingQueue(uint256)",
-  "function pendingQueueLength() view returns (uint256, uint256)",
-  "function pendingDerrameQueueLength() view returns (uint256)"
-];
+const ABI = ["function processPendingQueue(uint256)"];
 
 // ─── Cargar PK ─────────────────────────────────────────────────────
 let KEEPER_PK = process.env.KEEPER_PRIVATE_KEY || "";
@@ -42,17 +38,6 @@ const c = new ethers.Contract(PROXY, ABI, wallet);
 
 try {
   const data = c.interface.encodeFunctionData("processPendingQueue", [MAX_COUNT]);
-
-  // 0) Verificar si hay trabajo (evita gas de estimate con colas vacías)
-  const [upg, rei] = await c.pendingQueueLength();
-  const der = await c.pendingDerrameQueueLength();
-  // PLACE_ROOT items no tienen getter público — leer storage directo
-  const pLen = await provider.getStorage(PROXY, 47); // _pending.length = slot 47
-  const pendingLen = BigInt(pLen);
-  if (upg === 0n && rei === 0n && der === 0n && pendingLen === 0n) {
-    console.log(`[keeper] colas vacías (upg=${upg} rei=${rei} der=${der} pending=${pendingLen})`);
-    process.exit(0);
-  }
 
   // 1) Detectar trabajo sin mandar tx
   const est = await provider.estimateGas({ to: PROXY, data, from: wallet.address });
